@@ -1,18 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using Howest.MagicCards.DAL.Models;
 using Microsoft.EntityFrameworkCore;
-using Type = Howest.MagicCards.DAL.Models.Type;
 
-namespace Howest.MagicCards.DAL.DBContext;
+namespace Howest.MagicCards.DAL.Models;
 
-public partial class MTGContext : DbContext
+public partial class MtgContext : DbContext
 {
-    public MTGContext()
+    public MtgContext()
     {
     }
 
-    public MTGContext(DbContextOptions<MTGContext> options)
+    public MtgContext(DbContextOptions<MtgContext> options)
         : base(options)
     {
     }
