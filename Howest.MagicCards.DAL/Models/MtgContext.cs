@@ -51,16 +51,9 @@ public partial class MtgContext : DbContext
 
             entity.HasOne(d => d.Artist).WithMany(p => p.Cards).HasConstraintName("FK_cards_artists");
 
-            entity.HasOne(d => d.RarityCodeNavigation).WithMany(p => p.Cards)
-                .HasPrincipalKey(p => p.Code)
-                .HasForeignKey(d => d.RarityCode)
-                .HasConstraintName("FK_cards_rarities");
-
-            entity.HasOne(d => d.SetCodeNavigation).WithMany(p => p.Cards)
-                .HasPrincipalKey(p => p.Code)
-                .HasForeignKey(d => d.SetCode)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_cards_sets");
+            entity.HasOne(d => d.Rarity).WithMany(p => p.Cards).HasConstraintName("FK_cards_rarities");
+            
+            entity.HasOne(d => d.Set).WithMany(p => p.Cards).HasConstraintName("FK_cards_sets");
         });
 
         modelBuilder.Entity<CardColor>(entity =>

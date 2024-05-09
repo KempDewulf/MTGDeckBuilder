@@ -105,17 +105,18 @@ public partial class Card
     [InverseProperty("Cards")]
     public virtual Artist Artist { get; set; }
 
-    [InverseProperty("Card")]
-    public virtual ICollection<CardColor> CardColors { get; set; } = new List<CardColor>();
-
-    [InverseProperty("Card")]
-    public virtual ICollection<CardType> CardTypes { get; set; } = new List<CardType>();
-
     [ForeignKey("RarityCode")]
     [InverseProperty("Cards")]
-    public virtual Rarity RarityCodeNavigation { get; set; }
-
+    public virtual Rarity Rarity { get; set; }
+    
     [ForeignKey("SetCode")]
     [InverseProperty("Cards")]
-    public virtual Set SetCodeNavigation { get; set; }
+    public virtual Set Set { get; set; }
+    
+    [InverseProperty("Card")]
+    public virtual ICollection<CardColor> CardColors { get; set; }
+    
+    [InverseProperty("Card")]
+    public virtual ICollection<CardType> CardTypes { get; set; }
+    
 }
