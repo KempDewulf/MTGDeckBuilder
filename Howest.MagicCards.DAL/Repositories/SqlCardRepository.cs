@@ -16,8 +16,8 @@ public class SqlCardRepository : ICardRepository
     {
         return _context.Cards
             .Include(c => c.Artist)
-            .Include(c => c.Rarity)
-            .Include(c => c.Set)
+            //.Include(c => c.Rarity)
+            //.Include(c => c.Set)
             .Select(c => c);
     }
     
