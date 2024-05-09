@@ -1,4 +1,5 @@
 using Howest.MagicCards.DAL.Models;
+using Howest.MagicCards.DAL.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Type = Howest.MagicCards.DAL.Models.Type;
 
@@ -11,6 +12,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<MtgContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<ICardRepository, SqlCardRepository>();
 
 var app = builder.Build();
 

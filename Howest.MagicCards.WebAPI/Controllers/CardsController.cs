@@ -1,5 +1,6 @@
 ﻿
 using Howest.MagicCards.DAL.Models;
+using Howest.MagicCards.DAL.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Howest.MagicCards.WebAPI.Controllers;
@@ -8,18 +9,19 @@ namespace Howest.MagicCards.WebAPI.Controllers;
 [ApiController]
 public class CardsController : Controller
 {
-    private readonly MtgContext _db;
+    private readonly ICardRepository _cardRepository;
     
-    public CardsController(MtgContext db)
+    
+    public CardsController(ICardRepository cardRepository)
     {
-        _db = db;
+        _cardRepository = cardRepository;
     }
     
     [HttpGet]
     public OkObjectResult First()
     {
-        Card firtsCard = _db.Cards.FirstOrDefault();
-        return Ok(firtsCard);
+        Card firstCard = _cardRepository.GetAllCards().FirstOrDefault();
+        return Ok(firstCard);
     }
     
 }
