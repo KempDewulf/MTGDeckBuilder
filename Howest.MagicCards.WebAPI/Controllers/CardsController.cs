@@ -27,21 +27,19 @@ public class CardsController : ControllerBase
     [HttpGet("all")]
     public ActionResult<PagedResponse<IEnumerable<CardDto>>> GetCards([FromQuery] PaginationFilter paginationFilter)
     {
-        var query = _cardRepository.GetAllCards();
-        var totalRecords = query.Count();
-        var totalPages = (totalRecords + paginationFilter.PageSize - 1) / paginationFilter.PageSize;
+        return Ok(new PagedResponse<IEnumerable<CardDto>>(
+                _cardRepository
+                    .GetAllCards()
+                    .Skip((paginationFilter.PageNumber - 1) * paginationFilter.PageSize)
+                    .Take(paginationFilter.PageSize)
+                    .ProjectTo<CardDto>(_mapper.ConfigurationProvider)
+                    .ToList(),
+                _cardRepository.GetAllCards().Count(),
+                paginationFilter.PageNumber,
+                paginationFilter.PageSize
 
-        var pagedData = query
-            .Skip((paginationFilter.PageNumber - 1) * paginationFilter.PageSize)
-            .Take(paginationFilter.PageSize)
-            .ProjectTo<CardDto>(_mapper.ConfigurationProvider)
-            .ToList();
-
-        return Ok(new PagedResponse<IEnumerable<CardDto>>(pagedData, paginationFilter.PageNumber, paginationFilter.PageSize)
-        {
-            TotalRecords = totalRecords,
-            TotalPages = totalPages
-        });
+            )
+        );
     }
     
 }
