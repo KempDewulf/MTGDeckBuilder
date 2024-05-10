@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Howest.MagicCards.DAL.Filters;
 using Howest.MagicCards.DAL.Models;
 using Howest.MagicCards.DAL.Repositories;
 using Howest.MagicCards.Shared.DTO;
+using Howest.MagicCards.WebAPI.Utilities;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,7 +12,7 @@ namespace Howest.MagicCards.WebAPI.Controllers;
 
 [Route("api/cards")]
 [ApiController]
-public class CardsController : Controller
+public class CardsController : ControllerBase
 {
     private readonly ICardRepository _cardRepository;
     private readonly IMapper _mapper;
@@ -21,25 +23,25 @@ public class CardsController : Controller
         _mapper = mapper;
 
     }
-    
-    [HttpGet("first")]
-    public ActionResult<CardDto> First()
+
+    [HttpGet("all")]
+    public ActionResult<PagedResponse<IEnumerable<CardDto>>> GetCards([FromQuery] PaginationFilter paginationFilter)
     {
-        Card firstCard = _cardRepository.GetAllCards().FirstOrDefault();
-        if (firstCard == null) return NotFound();
+        var query = _cardRepository.GetAllCards();
+        var totalRecords = query.Count();
+        var totalPages = (totalRecords + paginationFilter.PageSize - 1) / paginationFilter.PageSize;
 
-        CardDto dto = _mapper.Map<CardDto>(firstCard);
+        var pagedData = query
+            .Skip((paginationFilter.PageNumber - 1) * paginationFilter.PageSize)
+            .Take(paginationFilter.PageSize)
+            .ProjectTo<CardDto>(_mapper.ConfigurationProvider)
+            .ToList();
 
-        return Ok(dto);
-    }
-
-    [HttpGet("first150")]
-    public ActionResult<List<CardDto>> First150()
-    {
-        List<Card> first150Cards = _cardRepository.GetAllCards().Take(150).ToList();
-        List<CardDto> dtos = _mapper.Map<List<CardDto>>(first150Cards);
-
-        return Ok(dtos);
+        return Ok(new PagedResponse<IEnumerable<CardDto>>(pagedData, paginationFilter.PageNumber, paginationFilter.PageSize)
+        {
+            TotalRecords = totalRecords,
+            TotalPages = totalPages
+        });
     }
     
 }
