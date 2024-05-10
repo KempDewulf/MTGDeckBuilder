@@ -15,9 +15,6 @@ public class SqlCardRepository : ICardRepository
     public IQueryable<Card> GetAllCards()
     {
         return _context.Cards
-            .Include(c => c.Artist)
-            .Include(c => c.Rarity)
-            .Include(c => c.Set)
             .Select(c => c);
     }
     

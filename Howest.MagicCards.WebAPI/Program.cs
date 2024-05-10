@@ -13,8 +13,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<MtgContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<ICardRepository, SqlCardRepository>();
+builder.Services.AddScoped<ISetRepository, SqlSetRepository>();
 
 builder.Services.AddAutoMapper(new System.Type[] { typeof(Howest.MagicCards.Shared.Mappings.CardProfile) });
+builder.Services.AddAutoMapper(new System.Type[] { typeof(Howest.MagicCards.Shared.Mappings.SetProfile) });
 
 var app = builder.Build();
 
