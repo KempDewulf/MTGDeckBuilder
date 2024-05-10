@@ -3,6 +3,7 @@ using AutoMapper.QueryableExtensions;
 using Howest.MagicCards.DAL.Models;
 using Howest.MagicCards.DAL.Repositories;
 using Howest.MagicCards.Shared.DTO;
+using Howest.MagicCards.WebAPI.Utilities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Howest.MagicCards.WebAPI.Controllers;
@@ -21,7 +22,7 @@ public class SetsController : ControllerBase
     }
     
     [HttpGet("all")]
-    public ActionResult<IEnumerable<SetDto>> GetSets()
+    public ActionResult<Response<IEnumerable<SetDto>>> GetSets()
     {
         return Ok(
             _setRepository
