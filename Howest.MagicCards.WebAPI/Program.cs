@@ -15,10 +15,12 @@ builder.Services.AddDbContext<MtgContext>(options => options.UseSqlServer(builde
 builder.Services.AddScoped<ICardRepository, SqlCardRepository>();
 builder.Services.AddScoped<ISetRepository, SqlSetRepository>();
 builder.Services.AddScoped<IRarityRepository, SqlRarityRepository>();
+builder.Services.AddScoped<ITypeRepository, SqlTypeRepository>();
 
 builder.Services.AddAutoMapper(new System.Type[] { typeof(Howest.MagicCards.Shared.Mappings.CardProfile) });
 builder.Services.AddAutoMapper(new System.Type[] { typeof(Howest.MagicCards.Shared.Mappings.SetProfile) });
 builder.Services.AddAutoMapper(new System.Type[] { typeof(Howest.MagicCards.Shared.Mappings.RarityProfile) });
+builder.Services.AddAutoMapper(new System.Type[] { typeof(Howest.MagicCards.Shared.Mappings.TypeProfile) });
 
 var app = builder.Build();
 
