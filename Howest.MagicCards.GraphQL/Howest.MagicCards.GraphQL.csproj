@@ -18,4 +18,13 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Queries\" />
+    <Folder Include="Schemas\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Howest.MagicCards.Shared\Howest.MagicCards.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

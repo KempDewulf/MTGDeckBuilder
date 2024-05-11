@@ -1,6 +1,6 @@
 ﻿namespace Howest.MagicCards.Shared.DTO;
 
-public class CardDto
+public class CardReadDto
 {
     public long Id { get; set; } = 0;
     

@@ -25,15 +25,15 @@ public class CardsController : ControllerBase
     }
 
     [HttpGet("all")]
-    public ActionResult<PagedResponse<IEnumerable<CardDto>>> GetCards([FromQuery] CardFilter cardFilter)
+    public ActionResult<PagedResponse<IEnumerable<CardReadDto>>> GetCards([FromQuery] CardFilter cardFilter)
     {
         IQueryable<Card> cards = _cardRepository.GetAllCards();
         cards = FilterUtility.ToFilteredList(cards, cardFilter.ArtistName, cardFilter.RarityName, cardFilter.SetName,
             cardFilter.CardName, cardFilter.CardText, cardFilter.CardType);
-        return Ok(new PagedResponse<IEnumerable<CardDto>>(
+        return Ok(new PagedResponse<IEnumerable<CardReadDto>>(
                     cards.Skip((cardFilter.PageNumber - 1) * cardFilter.PageSize)
                     .Take(cardFilter.PageSize)
-                    .ProjectTo<CardDto>(_mapper.ConfigurationProvider)
+                    .ProjectTo<CardReadDto>(_mapper.ConfigurationProvider)
                     .ToList(),
                 _cardRepository.GetAllCards().Count(),
                 cardFilter.PageNumber,
