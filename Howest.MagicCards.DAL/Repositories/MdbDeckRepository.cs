@@ -43,4 +43,42 @@ public class MdbDeckRepository : IDeckRepository
     {
         await _deckCollection.DeleteOneAsync(deck => deck.Id == ObjectId.Parse(id));
     }
+
+    public async Task AddCardToDeck(string deckId, long cardId)
+    {
+        var deck = await GetDeckById(deckId);
+        var card = deck.Cards.FirstOrDefault(c => c.CardId == cardId);
+        if (card == null)
+        {
+            deck.Cards = deck.Cards.Append(new CardInDeck
+            {
+                CardId = cardId,
+                Quantity = 1 
+                
+            });
+        }
+        else
+        {
+            card.Quantity++;
+        }
+    }
+    
+    public async Task RemoveCardFromDeck(string deckId, long cardId)
+    {
+        var deck = await GetDeckById(deckId);
+        var card = deck.Cards.FirstOrDefault(c => c.CardId == cardId);
+        if (card != null)
+        {
+            if (card.Quantity > 1)
+            {
+                card.Quantity--;
+            }
+            else
+            {
+                deck.Cards = deck.Cards.Where(c => c.CardId != cardId);
+            }
+        }
+    }
+    
+    
 }
