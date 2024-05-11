@@ -19,18 +19,18 @@ public class DecksEndPoints : IEndpointDefinition
             .Produces<DeckReadDto>(StatusCodes.Status201Created)
             .WithTags("Decks");
 
-        app.MapGet($"{_commonPrefix}/{{id:string}}", GetDeckById)
+        app.MapGet($"{_commonPrefix}/{{id}}", GetDeckById)
             .Produces<DeckReadDto>()
             .Produces(StatusCodes.Status404NotFound)
             .WithTags("Decks");
 
-        app.MapPut($"{_commonPrefix}/{{id:string}}", UpdateDeck)
+        app.MapPut($"{_commonPrefix}/{{id}}", UpdateDeck)
             .Accepts<DeckWriteDto>("application/json")
             .Produces<DeckReadDto>()
             .Produces(StatusCodes.Status404NotFound)
             .WithTags("Decks");
 
-        app.MapDelete($"{_commonPrefix}/{{id:string}}", DeleteDeck)
+        app.MapDelete($"{_commonPrefix}/{{id}}", DeleteDeck)
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound)
             .WithTags("Decks");

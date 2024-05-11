@@ -2,6 +2,6 @@
 
 public class CardInDeck
 {
-    public Card Card { get; set; }
+    public long CardId { get; set; }
     public int Quantity { get; set; }
 }
