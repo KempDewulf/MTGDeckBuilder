@@ -12,6 +12,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<MtgContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddScoped<ICardRepository, SqlCardRepository>();
 builder.Services.AddScoped<ISetRepository, SqlSetRepository>();
 builder.Services.AddScoped<IRarityRepository, SqlRarityRepository>();
