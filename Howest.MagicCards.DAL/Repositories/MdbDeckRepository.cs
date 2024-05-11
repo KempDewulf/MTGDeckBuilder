@@ -18,10 +18,8 @@ public class MdbDeckRepository : IDeckRepository
         _deckCollection = database.GetCollection<Deck>(context.CollectionName);
     }
     
-    public async Task<Deck> CreateDeck()
+    public async Task<Deck> CreateDeck(Deck newDeck)
     {
-        var newDeck = new Deck();
-        
         await _deckCollection.InsertOneAsync(newDeck);
 
         return newDeck;
