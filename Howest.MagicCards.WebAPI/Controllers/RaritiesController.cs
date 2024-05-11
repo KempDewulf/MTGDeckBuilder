@@ -21,13 +21,14 @@ public class RarityController : ControllerBase
     }
     
     [HttpGet("all")]
-    public ActionResult<PagedResponse<IEnumerable<RarityDto>>> GetRarities()
+    public ActionResult<Response<IEnumerable<RarityDto>>> GetRarities()
     {
-        return Ok(
+        return Ok(new Response<IEnumerable<RarityDto>>(
             _rarityRepository
                 .GetAllRarities()
                 .ProjectTo<RarityDto>(_mapper.ConfigurationProvider)
-                .ToList());
+                .ToList())
+        );
     }
     
 }
