@@ -24,10 +24,11 @@ public class SetsController : ControllerBase
     [HttpGet("all")]
     public ActionResult<Response<IEnumerable<SetDto>>> GetSets()
     {
-        return Ok(
+        return Ok(new Response<IEnumerable<SetDto>>(
             _setRepository
                 .GetAllSets()
                 .ProjectTo<SetDto>(_mapper.ConfigurationProvider)
-                .ToList());
+                .ToList())
+        );
     }
 }

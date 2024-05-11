@@ -9,12 +9,12 @@ namespace Howest.MagicCards.WebAPI.Controllers;
 
 [Route("api/rarities")]
 [ApiController]
-public class RarityController : ControllerBase
+public class RaritiesController : ControllerBase
 {
     private readonly IRarityRepository _rarityRepository;
     private readonly IMapper _mapper;
     
-    public RarityController(IRarityRepository rarityRepository, IMapper mapper)
+    public RaritiesController(IRarityRepository rarityRepository, IMapper mapper)
     {
         _rarityRepository = rarityRepository;
         _mapper = mapper;

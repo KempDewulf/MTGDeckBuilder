@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using Howest.MagicCards.DAL.Filters;
 using Howest.MagicCards.DAL.Models;
 using Howest.MagicCards.DAL.Repositories;
 using Howest.MagicCards.Shared.DTO;
+using Howest.MagicCards.Shared.Filters;
 using Howest.MagicCards.WebAPI.Utilities;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;

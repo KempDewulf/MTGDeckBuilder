@@ -23,10 +23,11 @@ public class TypesController : ControllerBase
     [HttpGet("all")]
     public ActionResult<Response<IEnumerable<TypeDto>>> GetTypes()
     {
-        return Ok(
+        return Ok(new Response<IEnumerable<TypeDto>>(
             _typeRepository
                 .GetAllTypes()
                 .ProjectTo<TypeDto>(_mapper.ConfigurationProvider)
-                .ToList());
+                .ToList())
+        );
     }
 }

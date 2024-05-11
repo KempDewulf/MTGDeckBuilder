@@ -1,6 +1,4 @@
-﻿using Howest.MagicCards.DAL.Models;
-
-namespace Howest.MagicCards.DAL.Filters;
+﻿namespace Howest.MagicCards.Shared.Filters;
 
 public class CardFilter: PaginationFilter
 {
