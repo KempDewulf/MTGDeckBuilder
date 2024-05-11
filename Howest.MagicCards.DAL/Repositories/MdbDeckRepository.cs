@@ -18,33 +18,31 @@ public class MdbDeckRepository : IDeckRepository
         _deckCollection = database.GetCollection<Deck>(context.CollectionName);
     }
     
-    public Task<Deck> CreateDeck()
+    public async Task<Deck> CreateDeck()
     {
         var newDeck = new Deck();
         
-        _deckCollection.InsertOne(newDeck);
+        await _deckCollection.InsertOneAsync(newDeck);
 
-        return Task.FromResult(newDeck);
+        return newDeck;
     }
 
-    public Task<Deck> GetDeckById(string id)
+    public async Task<Deck> GetDeckById(string id)
     {
-        var deck = _deckCollection.Find(deck => deck.Id == ObjectId.Parse(id)).FirstOrDefault();
+        var deck = await _deckCollection.Find(deck => deck.Id == ObjectId.Parse(id)).FirstOrDefaultAsync();
         
-        return Task.FromResult(deck);
+        return deck;
     }
 
-    public Task<Deck> UpdateDeck(Deck deck)
+    public async Task<Deck> UpdateDeck(Deck deck)
     {
-        _deckCollection.ReplaceOne(d => d.Id == deck.Id, deck);
+        await _deckCollection.ReplaceOneAsync(d => d.Id == deck.Id, deck);
         
-        return Task.FromResult(deck);
+        return deck;
     }
 
-    public Task DeleteDeck(string id)
+    public async Task DeleteDeck(string id)
     {
-        _deckCollection.DeleteOne(deck => deck.Id == ObjectId.Parse(id));
-        
-        return Task.CompletedTask;
+        await _deckCollection.DeleteOneAsync(deck => deck.Id == ObjectId.Parse(id));
     }
 }
