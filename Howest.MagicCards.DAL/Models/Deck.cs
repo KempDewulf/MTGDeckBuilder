@@ -1,8 +1,14 @@
-﻿namespace Howest.MagicCards.DAL.Models;
+﻿using MongoDB.Bson;
+
+namespace Howest.MagicCards.DAL.Models;
 
 public partial class Deck
 {
-    public string Id { get; set; }
+    public Deck()
+    {
+        Cards = new List<CardInDeck>();
+    }
+    public ObjectId Id { get; set; }
     
-    
+    public IEnumerable<CardInDeck> Cards { get; set; }
 }

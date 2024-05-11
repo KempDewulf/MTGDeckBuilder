@@ -4,9 +4,9 @@ namespace Howest.MagicCards.DAL.Repositories;
 
 public interface IDeckRepository
 {
-    Task<Deck> CreateDeck(Deck deck);
+    Task<Deck> CreateDeck();
     
-    IQueryable<Deck> GetDeckById(string id);
+    Task<Deck> GetDeckById(string id);
     
     Task<Deck> UpdateDeck(Deck deck);
     
