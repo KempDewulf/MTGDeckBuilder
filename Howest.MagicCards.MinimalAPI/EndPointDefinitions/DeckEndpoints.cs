@@ -4,6 +4,7 @@ using Howest.MagicCards.DAL.Models;
 using Howest.MagicCards.DAL.Repositories;
 using FluentUtils.MinimalApis.EndpointDefinitions;
 using Howest.MagicCards.Shared.DTO;
+using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 
 namespace Howest.MagicCards.MinimalAPI.EndPointDefinitions;
@@ -34,6 +35,19 @@ public class DecksEndPoints : IEndpointDefinition
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound)
             .WithTags("Decks");
+        
+        app.MapPost($"{_commonPrefix}/{{id}}/cards", AddCardToDeck)
+            .Accepts<CardInDeckWriteDto>("application/json")
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status404NotFound)
+            .WithTags("Decks");
+
+        app.MapDelete($"{_commonPrefix}/{{id}}/cards", RemoveCardFromDeck)
+            .Accepts<CardInDeckWriteDto>("application/json")
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status404NotFound)
+            .WithTags("Decks");
+            
     }
 
     public void DefineServices(IServiceCollection services)
@@ -41,10 +55,9 @@ public class DecksEndPoints : IEndpointDefinition
         services.AddScoped<IDeckRepository, MdbDeckRepository>();
     }
 
-    private async Task<IResult> AddDeck(IDeckRepository repository, IMapper mapper, DeckWriteDto newDeck)
+    private async Task<IResult> AddDeck(IDeckRepository repository, IMapper mapper, CardInDeckWriteDto cardInDeck)
     {
-        var deck = mapper.Map<Deck>(newDeck);
-        await repository.CreateDeck(deck);
+        var deck = await repository.CreateDeck(cardInDeck.CardId);
 
         var deckReadDto = mapper.Map<DeckReadDto>(deck);
 
@@ -82,6 +95,18 @@ public class DecksEndPoints : IEndpointDefinition
     {
         await repository.DeleteDeck(id);
 
+        return Results.NoContent();
+    }
+    
+    private async Task<IResult> AddCardToDeck([FromServices] IDeckRepository repository, [FromRoute] string id, [FromBody] CardInDeckWriteDto cardInDeck)
+    {
+        await repository.AddCardToDeck(id, cardInDeck.CardId);
+        return Results.NoContent();
+    }
+
+    private async Task<IResult> RemoveCardFromDeck([FromServices] IDeckRepository repository, [FromRoute] string id, [FromBody] CardInDeckWriteDto cardInDeck)
+    {
+        await repository.RemoveCardFromDeck(id, cardInDeck.CardId);
         return Results.NoContent();
     }
 }

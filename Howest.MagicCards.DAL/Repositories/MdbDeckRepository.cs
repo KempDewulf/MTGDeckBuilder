@@ -18,9 +18,15 @@ public class MdbDeckRepository : IDeckRepository
         _deckCollection = database.GetCollection<Deck>(context.CollectionName);
     }
     
-    public async Task<Deck> CreateDeck(Deck newDeck)
+    public async Task<Deck> CreateDeck(long cardId)
     {
+        var newDeck = new Deck();
+        
         await _deckCollection.InsertOneAsync(newDeck);
+
+        if (cardId == 0) return newDeck;
+        await AddCardToDeck(newDeck.Id.ToString(), cardId);
+        newDeck = await GetDeckById(newDeck.Id.ToString());
 
         return newDeck;
     }
@@ -61,6 +67,8 @@ public class MdbDeckRepository : IDeckRepository
         {
             card.Quantity++;
         }
+        
+        await UpdateDeck(deck);
     }
     
     public async Task RemoveCardFromDeck(string deckId, long cardId)
@@ -78,6 +86,8 @@ public class MdbDeckRepository : IDeckRepository
                 deck.Cards = deck.Cards.Where(c => c.CardId != cardId);
             }
         }
+        
+        await UpdateDeck(deck);
     }
     
     

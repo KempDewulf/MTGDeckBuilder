@@ -4,5 +4,4 @@ public class CardInDeckWriteDto
 {
     public long CardId { get; set; }
     
-    public int Quantity { get; set; }
 }
