@@ -1,14 +1,31 @@
-﻿<div>
-    <div>
+﻿<div class="flex-grow-1">
+    <div class="d-flex justify-content-between w-100 deck-header">
         <h2>Your Deck:</h2>
         <button>Clear deck</button>
     </div>
-    <div class="deck">
+    <div class="deck ">
         <ul>
-            @foreach (var card in new List<object>())
+            @foreach (var card in _cards)
             {
-            <li>@card</li>
+                <li class="d-flex">
+                    <div>
+                        <button>-</button>
+                        <span>1</span>
+                        <button>+</button>
+                    </div>
+                    <div>
+                        <p class="text">CARD 2</p>
+                    </div>
+                </li>
             }
         </ul>
     </div>
 </div>
+
+
+@code {
+    [Parameter]
+    public string Class { get; set; }
+    
+    private List<string> _cards = new List<string> { "card1", "card2", "card3", "card4", "card5", "card6", "card7", "card8", "card9", "card10", "card11", "card12", "card13", "card14", "card15", "card16", "card17", "card18", "card19", "card20" };
+}

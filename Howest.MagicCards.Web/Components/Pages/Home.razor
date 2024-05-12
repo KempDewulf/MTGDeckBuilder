@@ -1,7 +1,213 @@
 ﻿@page "/"
+@using System.Text.Json
+@using Howest.MagicCards.Shared.DTO
+@using Howest.MagicCards.Shared.Filters
+@using Howest.MagicCards.WebAPI.Utilities
+@using Microsoft.AspNetCore.WebUtilities
+@inject IHttpClientFactory HttpClientFactory
+@inject ILogger<Home> Logger
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Deck Builder</PageTitle>
 
-<div>
-    <h1>Magic The Gathering - Deck Builder</h1>
+<div class="form-container">
+    <form>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="cardName">Card Name</label>
+                <input type="text" id="cardName" class="form-control" @bind="CardName"/>
+            </div>
+            <div class="form-group">
+                <label for="cardText">Card Text</label>
+                <input type="text" id="cardText" class="form-control" @bind="CardText"/>
+            </div>
+            <div class="form-group">
+                <label for="artist">Artist</label>
+                <input type="text" id="artist" class="form-control" @bind="Artist"/>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="cardType">Card Type</label>
+                <select id="cardType" class="form-control" @bind="CardType">
+                    <option value="">Select Card Type</option>
+                    @foreach (var type in _types)
+                    {
+                        <option value="@type.Name">@type.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="rarity">Rarity</label>
+                <select id="rarity" class="form-control" @bind="Rarity">
+                    <option value="">Select Rarity</option>
+                    @foreach (var rarity in _rarities)
+                    {
+                        <option value="@rarity.Name">@rarity.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="set">Set</label>
+                <select id="set" class="form-control" @bind="Set">
+                    <option value="">Select Set</option>
+                    @foreach (var set in _sets)
+                    {
+                        <option value="@set.Name">@set.Name</option>
+                    }
+                </select>
+            </div>
+            <button class="btn btn-primary custom-button" type="button" @onclick="PerformSearch">Search</button>
+        </div>
+    </form>
+    <div class="card-grid">
+        @foreach (var card in _cards)
+        {
+        <div class="card">
+            <img src="@card.ImageUrl" alt="@card.Name" />
+        </div>
+        }
+    </div>
 </div>
+
+@code {
+    private JsonSerializerOptions _jsonOptions;
+    private IEnumerable<CardReadDto> _cards = [];
+    private IEnumerable<TypeDto> _types = [];
+    private IEnumerable<RarityDto> _rarities = [];
+    private IEnumerable<SetDto> _sets = [];
+    
+    private string CardName { get; set; }
+    private string CardText { get; set; }
+    private string Artist { get; set; }
+    private string CardType { get; set; }
+    private string Rarity { get; set; }
+    private string Set { get; set; }
+    
+    public Home()
+    {
+        _jsonOptions = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
+    }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await FetchCards();
+        await FetchCardTypes();
+        await FetchRarities();
+        await FetchSets();
+    }
+    
+    private async Task PerformSearch()
+    {
+        _cards = new List<CardReadDto>();
+        await FetchCards(CardName, CardText, Artist, CardType, Rarity, Set);
+    }
+    
+    private async Task FetchCards(string cardName = "", string cardText = "", string artistName = "", string cardType = "", string rarityName = "", string setName = "")
+    {
+        // Create a CardFilter object with the form field values
+        CardFilter filter = new CardFilter
+        {
+            CardName = cardName,
+            CardText = cardText,
+            ArtistName = artistName,
+            CardType = cardType,
+            RarityName = rarityName,
+            SetName = setName
+        };
+
+        // Serialize the CardFilter object into a query string
+        var filterParams = new Dictionary<string, string>
+        {
+            { "CardName", filter.CardName },
+            { "CardText", filter.CardText },
+            { "ArtistName", filter.ArtistName },
+            { "CardType", filter.CardType },
+            { "RarityName", filter.RarityName },
+            { "SetName", filter.SetName }
+        };
+
+        filterParams = filterParams.Where(param => !string.IsNullOrEmpty(param.Value)).ToDictionary(p => p.Key, p => p.Value);
+
+        string queryString = QueryHelpers.AddQueryString("cards", filterParams);
+        Logger.LogInformation($"{queryString}");
+
+
+        HttpClient httpClient = HttpClientFactory.CreateClient("CardsAPI");
+        HttpResponseMessage response = await httpClient.GetAsync(queryString);
+
+        string apiResponse = await response.Content.ReadAsStringAsync();
+
+        if (response.IsSuccessStatusCode)
+        {
+            PagedResponse<IEnumerable<CardReadDto>> result =
+                JsonSerializer.Deserialize<PagedResponse<IEnumerable<CardReadDto>>>(apiResponse, _jsonOptions);
+            _cards = result.Data;
+        }
+        else
+        {
+            _cards = new List<CardReadDto>();
+        }
+    }
+    
+    private async Task FetchCardTypes()
+    {
+        HttpClient httpClient = HttpClientFactory.CreateClient("CardsAPI");
+        HttpResponseMessage response = await httpClient.GetAsync("types");
+
+        string apiResponse = await response.Content.ReadAsStringAsync();
+
+        if (response.IsSuccessStatusCode)
+        {
+            Response<IEnumerable<TypeDto>> result = 
+                JsonSerializer.Deserialize<Response<IEnumerable<TypeDto>>>(apiResponse, _jsonOptions);
+            _types = result.Data;
+        }
+        else
+        {
+            _types = new List<TypeDto>();
+        }
+    }
+
+    private async Task FetchRarities()
+    {
+        HttpClient httpClient = HttpClientFactory.CreateClient("CardsAPI");
+        HttpResponseMessage response = await httpClient.GetAsync("rarities");
+
+        string apiResponse = await response.Content.ReadAsStringAsync();
+
+        if (response.IsSuccessStatusCode)
+        {
+            Response<IEnumerable<RarityDto>> result = 
+                JsonSerializer.Deserialize<Response<IEnumerable<RarityDto>>>(apiResponse, _jsonOptions);
+            _rarities = result.Data;
+        }
+        else
+        {
+            _rarities = new List<RarityDto>();
+        }
+    }
+    
+    private async Task FetchSets()
+    {
+        HttpClient httpClient = HttpClientFactory.CreateClient("CardsAPI");
+        HttpResponseMessage response = await httpClient.GetAsync("sets");
+
+        string apiResponse = await response.Content.ReadAsStringAsync();
+
+        if (response.IsSuccessStatusCode)
+        {
+            Response<IEnumerable<SetDto>> result = 
+                JsonSerializer.Deserialize<Response<IEnumerable<SetDto>>>(apiResponse, _jsonOptions);
+            _sets = result.Data;
+        }
+        else
+        {
+            Console.WriteLine($"FetchCardTypes API call failed with status code {response.StatusCode} and response content {apiResponse}");
+
+            _sets = new List<SetDto>();
+        }
+    }
+}

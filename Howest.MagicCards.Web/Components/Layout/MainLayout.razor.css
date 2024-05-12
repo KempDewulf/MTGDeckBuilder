@@ -1,11 +1,11 @@
-.page {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-}
+
 
 main {
     flex: 1;
+}
+
+.blue {
+    background-color: #0a58ca;
 }
 
 .sidebar {

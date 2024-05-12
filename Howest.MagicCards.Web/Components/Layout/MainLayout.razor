@@ -1,11 +1,14 @@
 ﻿@inherits LayoutComponentBase
 
 <div class="page">
-    <main>
-        <article class="content px-4">
+    <header class="p-4">
+        <h1 class="w-100 text-center">Magic The Gathering - Deck Builder</h1>
+    </header>
+    <main class="d-flex">
+        <article class="content w-75">
             @Body
         </article>
-        <DeckDisplay />
+        <DeckDisplay/>
     </main>
 </div>
 
