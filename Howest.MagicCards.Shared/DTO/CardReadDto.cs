@@ -14,4 +14,6 @@ public class CardReadDto
     
     public string Set { get; set; } = "";
     
+    public string Type { get; set; } = "";
+    
 }
