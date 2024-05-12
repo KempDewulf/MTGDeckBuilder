@@ -18,4 +18,11 @@ public class SqlCardRepository : ICardRepository
             .Select(c => c);
     }
     
+    public IQueryable<Card> GetAllCardsByArtistId(int id)
+    {
+        return _context.Cards
+            .Where(c => c.ArtistId == id)
+            .Select(c => c);
+    }
+    
 }

@@ -6,4 +6,6 @@ public interface ICardRepository
 {
     IQueryable<Card>  GetAllCards();
     
+    IQueryable<Card> GetAllCardsByArtistId(int id);
+    
 }
