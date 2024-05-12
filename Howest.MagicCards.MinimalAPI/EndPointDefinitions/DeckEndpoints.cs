@@ -18,36 +18,41 @@ public class DecksEndPoints : IEndpointDefinition
         app.MapPost($"{_commonPrefix}", AddDeck)
             .Accepts<DeckWriteDto>("application/json")
             .Produces<DeckReadDto>(StatusCodes.Status201Created)
+            .WithDescription("Add a deck.")
             .WithTags("Decks");
 
         app.MapGet($"{_commonPrefix}/{{id}}", GetDeckById)
             .Produces<DeckReadDto>()
             .Produces(StatusCodes.Status404NotFound)
-            .WithTags("Decks");
-
-        app.MapPut($"{_commonPrefix}/{{id}}", UpdateDeck)
-            .Accepts<DeckWriteDto>("application/json")
-            .Produces<DeckReadDto>()
-            .Produces(StatusCodes.Status404NotFound)
-            .WithTags("Decks");
-
-        app.MapDelete($"{_commonPrefix}/{{id}}", DeleteDeck)
-            .Produces(StatusCodes.Status204NoContent)
-            .Produces(StatusCodes.Status404NotFound)
+            .WithDescription("Get a deck by id.")
             .WithTags("Decks");
         
         app.MapPost($"{_commonPrefix}/{{id}}/cards", AddCardToDeck)
             .Accepts<CardInDeckWriteDto>("application/json")
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound)
+            .WithDescription("Add a card to a deck.")
             .WithTags("Decks");
 
         app.MapDelete($"{_commonPrefix}/{{id}}/cards", RemoveCardFromDeck)
             .Accepts<CardInDeckWriteDto>("application/json")
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound)
+            .WithDescription("Remove a card from a deck.")
             .WithTags("Decks");
-            
+        
+        app.MapDelete($"{_commonPrefix}/{{id}}", ClearAllCardsInDeck)
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status404NotFound)
+            .WithDescription("Clear all cards in a deck.")
+            .WithTags("Decks");
+    }
+
+    private async Task<IResult> ClearAllCardsInDeck(IDeckRepository repository, string id)
+    {
+        await repository.ClearAllCardsInDeck(id);
+
+        return Results.NoContent();
     }
 
     public void DefineServices(IServiceCollection services)
@@ -77,7 +82,21 @@ public class DecksEndPoints : IEndpointDefinition
 
         return Results.Ok(deckReadDto);
     }
+    
+    private async Task<IResult> AddCardToDeck([FromServices] IDeckRepository repository, [FromRoute] string id, [FromBody] CardInDeckWriteDto cardInDeck)
+    {
+        await repository.AddCardToDeck(id, cardInDeck.CardId);
+        return Results.NoContent();
+    }
 
+    private async Task<IResult> RemoveCardFromDeck([FromServices] IDeckRepository repository, [FromRoute] string id, [FromBody] CardInDeckWriteDto cardInDeck)
+    {
+        await repository.RemoveCardFromDeck(id, cardInDeck.CardId);
+        return Results.NoContent();
+    }
+    
+    // The following endpoints are implemented but not currently open on the API.
+    
     private async Task<IResult> UpdateDeck(IDeckRepository repository, IMapper mapper, string id,
         DeckWriteDto deckWriteDto)
     {
@@ -95,18 +114,6 @@ public class DecksEndPoints : IEndpointDefinition
     {
         await repository.DeleteDeck(id);
 
-        return Results.NoContent();
-    }
-    
-    private async Task<IResult> AddCardToDeck([FromServices] IDeckRepository repository, [FromRoute] string id, [FromBody] CardInDeckWriteDto cardInDeck)
-    {
-        await repository.AddCardToDeck(id, cardInDeck.CardId);
-        return Results.NoContent();
-    }
-
-    private async Task<IResult> RemoveCardFromDeck([FromServices] IDeckRepository repository, [FromRoute] string id, [FromBody] CardInDeckWriteDto cardInDeck)
-    {
-        await repository.RemoveCardFromDeck(id, cardInDeck.CardId);
         return Results.NoContent();
     }
 }
