@@ -15,4 +15,6 @@ public interface IDeckRepository
     Task AddCardToDeck(string deckId, long cardId);
     
     Task RemoveCardFromDeck(string deckId, long cardId);
+    
+    Task ClearAllCardsInDeck(string deckId);
 }

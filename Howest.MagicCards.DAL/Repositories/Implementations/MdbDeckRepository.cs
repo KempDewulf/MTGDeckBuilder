@@ -54,6 +54,14 @@ public class MdbDeckRepository : IDeckRepository
     {
         var deck = await GetDeckById(deckId);
         var card = deck.Cards.FirstOrDefault(c => c.CardId == cardId);
+        int totalCardsInDeck = deck.Cards.Sum(c => c.Quantity);
+        
+        if (totalCardsInDeck >= 60)
+        {
+            throw new Exception("Deck is full");
+        }
+        
+        
         if (card == null)
         {
             deck.Cards = deck.Cards.Append(new CardInDeck
@@ -90,5 +98,12 @@ public class MdbDeckRepository : IDeckRepository
         await UpdateDeck(deck);
     }
     
+    public async Task ClearAllCardsInDeck(string deckId)
+    {
+        var deck = await GetDeckById(deckId);
+        deck.Cards = new List<CardInDeck>();
+        
+        await UpdateDeck(deck);
+    }
     
 }
