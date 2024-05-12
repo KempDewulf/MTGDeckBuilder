@@ -24,7 +24,7 @@ public class CardsController : ControllerBase
 
     }
 
-    [HttpGet("all")]
+    [HttpGet]
     public ActionResult<PagedResponse<IEnumerable<CardReadDto>>> GetCards([FromQuery] CardFilter cardFilter)
     {
         IQueryable<Card> cards = _cardRepository.GetAllCards();

@@ -20,7 +20,7 @@ public class RaritiesController : ControllerBase
         _mapper = mapper;
     }
     
-    [HttpGet("all")]
+    [HttpGet]
     public ActionResult<Response<IEnumerable<RarityDto>>> GetRarities()
     {
         return Ok(new Response<IEnumerable<RarityDto>>(

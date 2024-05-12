@@ -20,7 +20,7 @@ public class TypesController : ControllerBase
         _mapper = mapper;
     }
     
-    [HttpGet("all")]
+    [HttpGet]
     public ActionResult<Response<IEnumerable<TypeDto>>> GetTypes()
     {
         return Ok(new Response<IEnumerable<TypeDto>>(

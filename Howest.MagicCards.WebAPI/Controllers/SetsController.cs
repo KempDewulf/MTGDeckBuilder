@@ -21,7 +21,7 @@ public class SetsController : ControllerBase
         _mapper = mapper;
     }
     
-    [HttpGet("all")]
+    [HttpGet]
     public ActionResult<Response<IEnumerable<SetDto>>> GetSets()
     {
         return Ok(new Response<IEnumerable<SetDto>>(
