@@ -5,7 +5,6 @@
 @using Howest.MagicCards.WebAPI.Utilities
 @using Microsoft.AspNetCore.WebUtilities
 @inject IHttpClientFactory HttpClientFactory
-@inject ILogger<Home> Logger
 
 <PageTitle>Deck Builder</PageTitle>
 
@@ -107,7 +106,6 @@
     
     private async Task FetchCards(string cardName = "", string cardText = "", string artistName = "", string cardType = "", string rarityName = "", string setName = "")
     {
-        // Create a CardFilter object with the form field values
         CardFilter filter = new CardFilter
         {
             CardName = cardName,
@@ -118,7 +116,6 @@
             SetName = setName
         };
 
-        // Serialize the CardFilter object into a query string
         var filterParams = new Dictionary<string, string>
         {
             { "CardName", filter.CardName },
@@ -132,8 +129,6 @@
         filterParams = filterParams.Where(param => !string.IsNullOrEmpty(param.Value)).ToDictionary(p => p.Key, p => p.Value);
 
         string queryString = QueryHelpers.AddQueryString("cards", filterParams);
-        Logger.LogInformation($"{queryString}");
-
 
         HttpClient httpClient = HttpClientFactory.CreateClient("CardsAPI");
         HttpResponseMessage response = await httpClient.GetAsync(queryString);
