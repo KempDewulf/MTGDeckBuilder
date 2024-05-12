@@ -17,6 +17,7 @@ var connectionString = configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<MtgContext>(options => options.UseSqlServer(connectionString));
 
 builder.Services.AddScoped<ICardRepository, SqlCardRepository>();
+builder.Services.AddScoped<IArtistRepository, SqlArtistRepository>();
 
 builder.Services.AddScoped<RootSchema>();
 builder.Services.AddGraphQL()

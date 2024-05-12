@@ -17,10 +17,11 @@ public class SqlArtistRepository : IArtistRepository
             .Select(a => a);   
     }
 
-    public IQueryable<Artist> GetArtistFromCardId(int cardId)
+    public Artist GetArtistFromCardId(int cardId)
     {
-        return _context.Artists
-            .Where(a => a.Cards.Any(c => c.Id == cardId))
-            .Select(a => a);
+        return _context.Cards
+            .Where(c => c.Id == cardId)
+            .Select(c => c.Artist)
+            .FirstOrDefault();
     }
 }
