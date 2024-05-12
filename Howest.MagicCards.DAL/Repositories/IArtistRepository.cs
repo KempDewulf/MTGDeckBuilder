@@ -6,5 +6,7 @@ public interface IArtistRepository
 {
     IQueryable<Artist> GetAllArtists();
     
+    Artist GetArtistById(int id);
+    
     Artist GetArtistFromCardId(int cardId);
 }

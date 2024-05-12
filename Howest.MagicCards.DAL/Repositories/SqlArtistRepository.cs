@@ -16,12 +16,16 @@ public class SqlArtistRepository : IArtistRepository
         return _context.Artists
             .Select(a => a);   
     }
+    
+    public Artist GetArtistById(int id)
+    {
+        return _context.Artists
+            .FirstOrDefault(a => a.Id == id);
+    }
 
     public Artist GetArtistFromCardId(int cardId)
     {
-        return _context.Cards
-            .Where(c => c.Id == cardId)
-            .Select(c => c.Artist)
-            .FirstOrDefault();
+        return _context.Artists
+            .FirstOrDefault(a => a.Cards.Any(c => c.Id == cardId));
     }
 }

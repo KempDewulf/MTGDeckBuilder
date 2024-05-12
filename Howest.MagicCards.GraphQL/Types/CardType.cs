@@ -15,6 +15,8 @@ public class CardType : ObjectGraphType<Card>
         Field(c => c.OriginalImageUrl, type: typeof(StringGraphType)).Description("Image URL of the card.");
         Field(c => c.RarityCode, type: typeof(StringGraphType)).Description("The card rarity.");
         Field(c => c.SetCode, type: typeof(StringGraphType)).Description("The card set code.");
+        Field(c => c.Power, type: typeof(StringGraphType)).Description("The card power.");
+        Field(c => c.Toughness, type: typeof(StringGraphType)).Description("The card toughness.");
         Field(c => c.OriginalType, type: typeof(StringGraphType)).Description("The card type.");
         Field<ArtistType>(
             "Artist",
