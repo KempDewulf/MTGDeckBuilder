@@ -31,10 +31,11 @@ public class CardsController : ControllerBase
         cards = FilterUtility.ToFilteredList(cards, cardFilter.ArtistName, cardFilter.RarityName, cardFilter.SetName,
             cardFilter.CardName, cardFilter.CardText, cardFilter.CardType);
         return Ok(new PagedResponse<IEnumerable<CardReadDto>>(
-                    cards.Skip((cardFilter.PageNumber - 1) * cardFilter.PageSize)
-                    .Take(cardFilter.PageSize)
-                    .ProjectTo<CardReadDto>(_mapper.ConfigurationProvider)
-                    .ToList(),
+                    cards.OrderBy(c => c.Id)
+                        .Skip((cardFilter.PageNumber - 1) * cardFilter.PageSize)
+                        .Take(cardFilter.PageSize)
+                        .ProjectTo<CardReadDto>(_mapper.ConfigurationProvider)
+                        .ToList(),
                 _cardRepository.GetAllCards().Count(),
                 cardFilter.PageNumber,
                 cardFilter.PageSize
