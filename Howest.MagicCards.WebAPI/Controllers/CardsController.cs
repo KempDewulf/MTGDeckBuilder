@@ -28,15 +28,17 @@ public class CardsController : ControllerBase
     public ActionResult<PagedResponse<IEnumerable<CardReadDto>>> GetCards([FromQuery] CardFilter cardFilter)
     {
         IQueryable<Card> cards = _cardRepository.GetAllCards();
+        
         cards = FilterUtility.ToFilteredList(cards, cardFilter.ArtistName, cardFilter.RarityName, cardFilter.SetName,
             cardFilter.CardName, cardFilter.CardText, cardFilter.CardType);
+        
         return Ok(new PagedResponse<IEnumerable<CardReadDto>>(
                     cards.OrderBy(c => c.Id)
                         .Skip((cardFilter.PageNumber - 1) * cardFilter.PageSize)
                         .Take(cardFilter.PageSize)
                         .ProjectTo<CardReadDto>(_mapper.ConfigurationProvider)
                         .ToList(),
-                _cardRepository.GetAllCards().Count(),
+                cards.Count(),
                 cardFilter.PageNumber,
                 cardFilter.PageSize
 
