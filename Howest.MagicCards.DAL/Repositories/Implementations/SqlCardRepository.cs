@@ -17,6 +17,15 @@ public class SqlCardRepository : ICardRepository
         return _context.Cards
             .Select(c => c);
     }
+
+    public Card GetCardById(long id)
+    {
+        return _context.Cards
+            .Include(c => c.Rarity)
+            .Include(c => c.Artist)
+            .Include(c => c.Set)
+            .FirstOrDefault(c => c.Id == id);;
+    }
     
     public IQueryable<Card> GetAllCardsByArtistId(int id)
     {

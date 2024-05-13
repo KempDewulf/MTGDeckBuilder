@@ -46,6 +46,17 @@ public class CardsController : ControllerBase
         );
     }
     
+    [HttpGet("{id:long}", Name = "GetCardById")]
+    public ActionResult<CardReadDto> GetCardById(long id)
+    {
+        var card = _cardRepository.GetCardById(id);
+        if (card == null)
+        {
+            return NotFound();
+        }
+        return Ok(_mapper.Map<CardReadDto>(card));
+    }
+    
     
     
 }
