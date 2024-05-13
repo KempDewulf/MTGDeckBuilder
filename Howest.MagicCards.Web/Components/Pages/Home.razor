@@ -61,19 +61,29 @@
     <div class="card-grid">
         @foreach (var card in _cards)
         {
-        <div class="card">
-            <img src="@card.ImageUrl" alt="@card.Name" />
-        </div>
+            <div class="card">
+                <img src="@(string.IsNullOrEmpty(card.ImageUrl) ? $"https://images.placeholders.dev/?width=230&height=318&text={Uri.EscapeDataString(card.Name)}&fontSize=30&textWrap=true&bgColor=%23f7f6f6&textColor=%236d6e71" : card.ImageUrl)" alt="@card.Name" />
+            </div>
         }
+    </div>
+    <div class="pagination-controls d-flex justify-content-center align-items-center pt-4 pb-4">
+        <button class="btn btn-primary" @onclick="PreviousPage" disabled="@(_currentPage == 1)">Previous</button>
+        <span class="ps-2 pe-2">Page @_currentPage of @_totalPages</span>
+        <button class="btn btn-primary" @onclick="NextPage" disabled="@(_currentPage == _totalPages)">Next</button>
     </div>
 </div>
 
 @code {
-    private JsonSerializerOptions _jsonOptions;
+    private readonly JsonSerializerOptions _jsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
     private IEnumerable<CardReadDto> _cards = [];
     private IEnumerable<TypeDto> _types = [];
     private IEnumerable<RarityDto> _rarities = [];
     private IEnumerable<SetDto> _sets = [];
+    private int _currentPage = 1;
+    private int _totalPages;
     
     private string CardName { get; set; }
     private string CardText { get; set; }
@@ -81,15 +91,7 @@
     private string CardType { get; set; }
     private string Rarity { get; set; }
     private string Set { get; set; }
-    
-    public Home()
-    {
-        _jsonOptions = new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
-        };
-    }
-    
+
     protected override async Task OnInitializedAsync()
     {
         await FetchCards();
@@ -101,10 +103,24 @@
     private async Task PerformSearch()
     {
         _cards = new List<CardReadDto>();
-        await FetchCards(CardName, CardText, Artist, CardType, Rarity, Set);
+        await FetchCards(CardName, CardText, Artist, CardType, Rarity, Set, _currentPage);
     }
     
-    private async Task FetchCards(string cardName = "", string cardText = "", string artistName = "", string cardType = "", string rarityName = "", string setName = "")
+    private async Task PreviousPage()
+    {
+        if (_currentPage <= 1) return;
+        _currentPage--;
+        await PerformSearch();
+    }
+
+    private async Task NextPage()
+    {
+        if (_currentPage >= _totalPages) return;
+        _currentPage++;
+        await PerformSearch();
+    }
+    
+    private async Task FetchCards(string cardName = "", string cardText = "", string artistName = "", string cardType = "", string rarityName = "", string setName = "", int pageNumber = 1)
     {
         CardFilter filter = new CardFilter
         {
@@ -113,7 +129,8 @@
             ArtistName = artistName,
             CardType = cardType,
             RarityName = rarityName,
-            SetName = setName
+            SetName = setName,
+            PageNumber = pageNumber,
         };
 
         var filterParams = new Dictionary<string, string>
@@ -123,7 +140,8 @@
             { "ArtistName", filter.ArtistName },
             { "CardType", filter.CardType },
             { "RarityName", filter.RarityName },
-            { "SetName", filter.SetName }
+            { "SetName", filter.SetName },
+            { "PageNumber", filter.PageNumber.ToString() },
         };
 
         filterParams = filterParams.Where(param => !string.IsNullOrEmpty(param.Value)).ToDictionary(p => p.Key, p => p.Value);
@@ -140,6 +158,7 @@
             PagedResponse<IEnumerable<CardReadDto>> result =
                 JsonSerializer.Deserialize<PagedResponse<IEnumerable<CardReadDto>>>(apiResponse, _jsonOptions);
             _cards = result.Data;
+            _totalPages = result.TotalPages;
         }
         else
         {
