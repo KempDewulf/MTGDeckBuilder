@@ -1,31 +1,123 @@
-﻿<div class="flex-grow-1">
+﻿@page "/deckdisplay"
+@using System.Text
+@using System.Text.Json
+@using Howest.MagicCards.Shared.DTO
+@using Microsoft.AspNetCore.WebUtilities
+@inject IHttpClientFactory HttpClientFactory
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+
+<div class="flex-grow-1">
     <div class="d-flex justify-content-between w-100 deck-header">
         <h2>Your Deck:</h2>
-        <button>Clear deck</button>
+        <button @onclick="ClearDeck">Clear deck</button>
     </div>
     <div class="deck ">
         <ul>
-            @foreach (var card in _cards)
+            @if (_deck != null)
             {
-                <li class="d-flex">
-                    <div>
-                        <button>-</button>
-                        <span>1</span>
-                        <button>+</button>
-                    </div>
-                    <div>
-                        <p class="text">CARD 2</p>
-                    </div>
-                </li>
+                foreach (var card in _deck.Cards)
+                {
+                    <li class="d-flex">
+                        <div>
+                            <button @onclick="() => RemoveCardFromDeck(card.CardId)">-</button>
+                            <span>@card.Quantity</span>
+                            <button @onclick="() => AddCardToDeck(card.CardId)">+</button>
+                        </div>
+                        <div>
+                            <p class="text">@card.CardId</p>
+                        </div>
+                    </li>
+                }
             }
         </ul>
     </div>
 </div>
 
-
 @code {
-    [Parameter]
-    public string Class { get; set; }
     
-    private List<string> _cards = new List<string> { "card1", "card2", "card3", "card4", "card5", "card6", "card7", "card8", "card9", "card10", "card11", "card12", "card13", "card14", "card15", "card16", "card17", "card18", "card19", "card20" };
+    [Parameter]
+    public long CardToAdd { get; set; }
+    
+    [Inject]
+    public ProtectedLocalStorage LocalStorage { get; set; }
+    
+    private readonly JsonSerializerOptions _jsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+    
+    private DeckReadDto _deck;
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var result = await LocalStorage.GetAsync<string>("deckId");
+            if (result.Success)
+            {
+                _deck = await GetDeckAsync(result.Value);
+            }
+            else
+            {
+                _deck = await CreateDeckAsync();
+                await LocalStorage.SetAsync("deckId", _deck.Id);
+            }
+
+            StateHasChanged();
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (CardToAdd != 0 && _deck != null)
+        {
+            await AddCardToDeck(CardToAdd);
+            CardToAdd = 0;
+        }
+    }
+
+    private async Task<DeckReadDto> CreateDeckAsync()
+    {
+        HttpClient httpClient = HttpClientFactory.CreateClient("DecksAPI");
+        HttpResponseMessage response = await httpClient.PostAsJsonAsync("decks", new { });
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<DeckReadDto>();
+    }
+
+    private async Task<DeckReadDto> GetDeckAsync(string id)
+    {
+        HttpClient httpClient = HttpClientFactory.CreateClient("DecksAPI");
+        HttpResponseMessage response = await httpClient.GetAsync($"decks/{id}");
+        string apiResponse = await response.Content.ReadAsStringAsync();
+
+        return response.IsSuccessStatusCode ? JsonSerializer.Deserialize<DeckReadDto>(apiResponse, _jsonOptions) : null;
+    }
+
+    private async Task AddCardToDeck(long cardId)
+    {
+        HttpClient httpClient = HttpClientFactory.CreateClient("DecksAPI");
+        HttpResponseMessage response = await httpClient.PostAsJsonAsync($"decks/{_deck.Id}/cards", new { cardId = cardId });
+        response.EnsureSuccessStatusCode();
+        _deck = await GetDeckAsync(_deck.Id);
+    }
+
+    private async Task RemoveCardFromDeck(long cardId)
+    {
+        HttpClient httpClient = HttpClientFactory.CreateClient("DecksAPI");
+        var request = new HttpRequestMessage(HttpMethod.Delete, $"decks/{_deck.Id}/cards")
+        {
+            Content = new StringContent(JsonSerializer.Serialize(new { cardId = cardId }), Encoding.UTF8, "application/json")
+        };
+        HttpResponseMessage response = await httpClient.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+        _deck = await GetDeckAsync(_deck.Id);
+    }
+
+    private async Task ClearDeck()
+    {
+        HttpClient httpClient = HttpClientFactory.CreateClient("DecksAPI");
+        await httpClient.DeleteAsync($"decks/{_deck.Id}");
+        await LocalStorage.DeleteAsync("deckId");
+        _deck = null;
+    }
 }
