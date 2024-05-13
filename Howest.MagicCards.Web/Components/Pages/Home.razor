@@ -67,7 +67,7 @@
         @foreach (var card in _cards)
         {
             <div id="bootstrap-overrides" class="card @(string.IsNullOrEmpty(card.ImageUrl) ? "border border-5 border-dark rounded" : "")">
-                <img src="@(string.IsNullOrEmpty(card.ImageUrl) ? $"https://images.placeholders.dev/?width=230&height=318&text={Uri.EscapeDataString(card.Name)}&fontSize=30&textWrap=true&bgColor=%23f7f6f6&textColor=%236d6e71" : card.ImageUrl)" alt="@card.Name" />
+                <img src="@(string.IsNullOrEmpty(card.ImageUrl) ? $"https://images.placeholders.dev/?width=230&height=318&text={"Name: " + Uri.EscapeDataString(card.Name) + " Set: " +Uri.EscapeDataString(card.Set)}&fontSize=30&textWrap=true&bgColor=%23f7f6f6&textColor=%236d6e71" : card.ImageUrl)" alt="@card.Name" />
             </div>
         }
     </div>
