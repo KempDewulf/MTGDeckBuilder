@@ -7,12 +7,20 @@
 @inject IHttpClientFactory HttpClientFactory
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 
+<style>
+    .quantity-span {
+        display: inline-block;
+        width: 20px; /* Adjust this value as needed */
+        text-align: center;
+    }
+</style>
+
 <div class="flex-grow-1">
     <div class="d-flex justify-content-between w-100 deck-header">
         <h2>Your Deck:</h2>
         <div>
             <span>Cards: @(_deck?.Cards.Sum(c => c.Quantity) ?? 0) / 60</span>
-            <button @onclick="ClearDeck">Clear deck</button>
+            <button class="btn btn-warning ms-2 me-4" @onclick="ClearDeck">Clear deck</button>
         </div>
     </div>
     <div class="deck ">
@@ -23,11 +31,11 @@
                 {
                     <li class="d-flex">
                         <div>
-                            <button @onclick="() => RemoveCardFromDeck(card.CardId)">-</button>
-                            <span>@card.Quantity</span>
-                            <button @onclick="() => AddCardToDeck(card.CardId)">+</button>
+                            <button class="btn btn-secondary btn-sm" @onclick="() => RemoveCardFromDeck(card.CardId)">-</button>
+                            <span class="quantity-span">@card.Quantity</span>
+                            <button class="btn btn-secondary btn-sm" @onclick="() => AddCardToDeck(card.CardId)" disabled="@(_deck?.Cards.Sum(c => c.Quantity) >= 60)">+</button>
                         </div>
-                        <div>
+                        <div class="ms-2">
                             <p class="text">@_cardsInDeck[card.CardId].Name</p>
                         </div>
                     </li>
