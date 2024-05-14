@@ -1,4 +1,5 @@
 ﻿@page "/deckdisplay"
+@using System.Net
 @using System.Text
 @using System.Text.Json
 @using Howest.MagicCards.Shared.DTO
@@ -9,7 +10,10 @@
 <div class="flex-grow-1">
     <div class="d-flex justify-content-between w-100 deck-header">
         <h2>Your Deck:</h2>
-        <button @onclick="ClearDeck">Clear deck</button>
+        <div>
+            <span>Cards: @(_deck?.Cards.Sum(c => c.Quantity) ?? 0) / 60</span>
+            <button @onclick="ClearDeck">Clear deck</button>
+        </div>
     </div>
     <div class="deck ">
         <ul>
@@ -70,6 +74,12 @@
     {
         if (_deck != null)
         {
+            int totalCardsInDeck = _deck.Cards.Sum(c => c.Quantity);
+            if (totalCardsInDeck >= 60)
+            {
+                return;
+            }
+
             await AddCardToDeck(cardId);
         }
         StateHasChanged();
@@ -119,9 +129,16 @@
     private async Task AddCardToDeck(long cardId)
     {
         HttpClient httpClient = HttpClientFactory.CreateClient("DecksAPI");
-        HttpResponseMessage response = await httpClient.PostAsJsonAsync($"decks/{_deck.Id}/cards", new { cardId = cardId });
-        response.EnsureSuccessStatusCode();
-        _deck = await GetDeckAsync(_deck.Id);
+        try
+        {
+            HttpResponseMessage response = await httpClient.PostAsJsonAsync($"decks/{_deck.Id}/cards", new { cardId = cardId });
+            response.EnsureSuccessStatusCode();
+            _deck = await GetDeckAsync(_deck.Id);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.BadRequest)
+        {
+            Console.WriteLine("Cannot add more cards. The deck is full.");
+        }
     }
 
     private async Task RemoveCardFromDeck(long cardId)
@@ -139,8 +156,8 @@
     private async Task ClearDeck()
     {
         HttpClient httpClient = HttpClientFactory.CreateClient("DecksAPI");
-        await httpClient.DeleteAsync($"decks/{_deck.Id}");
-        await LocalStorage.DeleteAsync("deckId");
-        _deck = null;
+        HttpResponseMessage response = await httpClient.DeleteAsync($"decks/{_deck.Id}");
+        response.EnsureSuccessStatusCode();
+        _deck = await GetDeckAsync(_deck.Id);
     }
 }
