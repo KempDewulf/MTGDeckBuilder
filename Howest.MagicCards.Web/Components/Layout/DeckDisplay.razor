@@ -24,7 +24,7 @@
                             <button @onclick="() => AddCardToDeck(card.CardId)">+</button>
                         </div>
                         <div>
-                            <p class="text">@card.CardId</p>
+                            <p class="text">@_cardsInDeck[card.CardId].Name</p>
                         </div>
                     </li>
                 }
@@ -35,9 +35,6 @@
 
 @code {
     
-    [Parameter]
-    public long CardToAdd { get; set; }
-    
     [Inject]
     public ProtectedLocalStorage LocalStorage { get; set; }
     
@@ -47,33 +44,44 @@
     };
     
     private DeckReadDto _deck;
+    private Dictionary<long, CardReadDto> _cardsInDeck = new();
     
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (!firstRender)
         {
-            var result = await LocalStorage.GetAsync<string>("deckId");
-            if (result.Success)
-            {
-                _deck = await GetDeckAsync(result.Value);
-            }
-            else
-            {
-                _deck = await CreateDeckAsync();
-                await LocalStorage.SetAsync("deckId", _deck.Id);
-            }
-
-            StateHasChanged();
+            return;
         }
+
+        var result = await LocalStorage.GetAsync<string>("deckId");
+        if (!result.Success)
+        {
+            _deck = await CreateDeckAsync();
+            await LocalStorage.SetAsync("deckId", _deck.Id);
+            StateHasChanged();
+            return;
+        }
+
+        _deck = await GetDeckAsync(result.Value);
+        StateHasChanged();
     }
 
-    protected override async Task OnParametersSetAsync()
+    public async Task AddCard(long cardId)
     {
-        if (CardToAdd != 0 && _deck != null)
+        if (_deck != null)
         {
-            await AddCardToDeck(CardToAdd);
-            CardToAdd = 0;
+            await AddCardToDeck(cardId);
         }
+        StateHasChanged();
+    }
+    
+    private async Task<CardReadDto> GetCardAsync(long cardId)
+    {
+        HttpClient httpClient = HttpClientFactory.CreateClient("CardsAPI");
+        HttpResponseMessage response = await httpClient.GetAsync($"cards/{cardId}");
+        string apiResponse = await response.Content.ReadAsStringAsync();
+
+        return response.IsSuccessStatusCode ? JsonSerializer.Deserialize<CardReadDto>(apiResponse, _jsonOptions) : null;
     }
 
     private async Task<DeckReadDto> CreateDeckAsync()
@@ -90,7 +98,22 @@
         HttpResponseMessage response = await httpClient.GetAsync($"decks/{id}");
         string apiResponse = await response.Content.ReadAsStringAsync();
 
-        return response.IsSuccessStatusCode ? JsonSerializer.Deserialize<DeckReadDto>(apiResponse, _jsonOptions) : null;
+        if (response.IsSuccessStatusCode)
+        {
+            _deck = JsonSerializer.Deserialize<DeckReadDto>(apiResponse, _jsonOptions);
+            _cardsInDeck.Clear();
+            foreach (var card in _deck.Cards)
+            {
+                var cardInfo = await GetCardAsync(card.CardId);
+                _cardsInDeck[card.CardId] = cardInfo;
+            }
+        }
+        else
+        {
+            _deck = null;
+        }
+
+        return _deck;
     }
 
     private async Task AddCardToDeck(long cardId)

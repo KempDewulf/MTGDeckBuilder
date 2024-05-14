@@ -9,7 +9,7 @@
         <article class="content w-75">
             <Home CardClicked="AddCardToDeck" />
         </article>
-        <DeckDisplay CardToAdd="CardToAdd" />
+        <DeckDisplay @ref="_deckDisplay" />
     </main>
 </div>
 
@@ -21,10 +21,10 @@
 
 @code
 {
-    private long CardToAdd { get; set; }
+    private DeckDisplay _deckDisplay;
 
-    private void AddCardToDeck(long cardId)
+    private async void AddCardToDeck(long cardId)
     {
-        CardToAdd = cardId;
+        await _deckDisplay.AddCard(cardId);
     }
 }
