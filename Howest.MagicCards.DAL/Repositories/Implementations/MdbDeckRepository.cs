@@ -1,4 +1,5 @@
-﻿using Howest.MagicCards.DAL.Models;
+﻿using Howest.MagicCards.DAL.Exceptions;
+using Howest.MagicCards.DAL.Models;
 using Microsoft.EntityFrameworkCore.Metadata;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -58,7 +59,7 @@ public class MdbDeckRepository : IDeckRepository
         
         if (totalCardsInDeck >= 60)
         {
-            throw new Exception("Deck is full");
+            throw new DeckFullException();
         }
         
         

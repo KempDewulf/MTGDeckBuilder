@@ -3,6 +3,7 @@ using AutoMapper;
 using Howest.MagicCards.DAL.Models;
 using Howest.MagicCards.DAL.Repositories;
 using FluentUtils.MinimalApis.EndpointDefinitions;
+using Howest.MagicCards.DAL.Exceptions;
 using Howest.MagicCards.Shared.DTO;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
@@ -85,7 +86,15 @@ public class DecksEndPoints : IEndpointDefinition
     
     private async Task<IResult> AddCardToDeck([FromServices] IDeckRepository repository, [FromRoute] string id, [FromBody] CardInDeckWriteDto cardInDeck)
     {
-        await repository.AddCardToDeck(id, cardInDeck.CardId);
+        try
+        {
+            await repository.AddCardToDeck(id, cardInDeck.CardId);
+        }
+        catch (DeckFullException)
+        {
+            return Results.BadRequest("Cannot add more cards. The deck is full.");
+        }
+        
         return Results.NoContent();
     }
 
