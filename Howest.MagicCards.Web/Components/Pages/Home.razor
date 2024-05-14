@@ -55,7 +55,7 @@
                     }
                 </select>
             </div>
-            <button class="btn btn-primary custom-button" type="button" @onclick="PerformSearch">Search</button>
+            <button class="btn btn-primary custom-button" type="button" @onclick="OnSearchClick">Search</button>
         </div>
     </form>
     <div class="pagination-controls d-flex justify-content-center align-items-center pt-4 pb-4">
@@ -109,9 +109,18 @@
         await FetchSets();
     }
     
-    private async Task PerformSearch()
+    private async Task OnSearchClick()
+    {
+        await PerformSearch(true);
+    }
+    
+    private async Task PerformSearch(bool resetPage = true)
     {
         _cards = new List<CardReadDto>();
+        if (resetPage)
+        {
+            _currentPage = 1;
+        }
         await FetchCards(CardName, CardText, Artist, CardType, Rarity, Set, _currentPage);
     }
     
@@ -119,14 +128,14 @@
     {
         if (_currentPage <= 1) return;
         _currentPage--;
-        await PerformSearch();
+        await PerformSearch(false);
     }
 
     private async Task NextPage()
     {
         if (_currentPage >= _totalPages) return;
         _currentPage++;
-        await PerformSearch();
+        await PerformSearch(false);
     }
     
     private async Task FetchCards(string cardName = "", string cardText = "", string artistName = "", string cardType = "", string rarityName = "", string setName = "", int pageNumber = 1)
