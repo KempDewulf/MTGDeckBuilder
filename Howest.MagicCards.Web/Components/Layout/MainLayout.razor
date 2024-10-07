@@ -1,0 +1,30 @@
+﻿@using Howest.MagicCards.Web.Components.Pages
+@inherits LayoutComponentBase
+
+<div class="page">
+    <header class="p-4">
+        <h1 class="w-100 text-center font-weight-bold">Magic The Gathering - Deck Builder</h1>
+    </header>
+    <main class="d-flex">
+        <article class="content w-75">
+            <Home CardClicked="AddCardToDeck" />
+        </article>
+        <DeckDisplay @ref="_deckDisplay" />
+    </main>
+</div>
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>
+
+@code
+{
+    private DeckDisplay _deckDisplay;
+
+    private async void AddCardToDeck(long cardId)
+    {
+        await _deckDisplay.AddCard(cardId);
+    }
+}
